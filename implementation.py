@@ -63,7 +63,7 @@ model.add(Dense(units=4096, activation='relu'))
 # Layer 22: Softmax Layer
 model.add(Dense(units=2, activation='softmax'))
 
-# Add Optimizer
+# Add Optimizer and check accuracy metrics
 optimizer = Adam(learning_rate=0.001)
 model.compile(optimizer=optimizer, loss=keras.losses.categorical_crossentropy,
               metrics=['accuracy'])

@@ -10,6 +10,8 @@ In the end it has 2 FC(fully connected layers) followed by a softmax for output.
 
 Very Deep Convolutional Networks for Large-Scale Image Recognition. [https://arxiv.org/abs/1409.1556]
 
+![vgg16 architecture](https://user-images.githubusercontent.com/35737777/69682136-5bdd4780-10a8-11ea-9079-50283f5451df.png)
+
 The implementation of VGG16 can be done on Cats vs Dogs dataset.
 
 ### Packages Needed
@@ -119,7 +121,7 @@ After creating all the convolution we pass the data to the dense layer:
 12. 1 x Dense layer of 4096 units
 13. 1 x Dense Softmax layer of 2 units
 
-### Adam Optimizer
+#### Adam Optimizer
 Let us use Adam optimiser to reach to the global minima while training out model. If we stuck in local minima while 
 training then the adam optimiser will help us to get out of local minima and reach global minima. We will also 
 specify the learning rate of the optimiser, here in this case it is set at 0.001. If our training is bouncing a lot on 

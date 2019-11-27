@@ -236,6 +236,7 @@ hist = model.fit_generator(steps_per_epoch=100, generator=traindata, validation_
 
 ### Plot Visualisation
 We will visualise training/validation accuracy and loss using matplotlib.
+![plot](https://user-images.githubusercontent.com/35737777/69684979-a6fc5800-10b2-11ea-874f-878037c95e74.png)
 
 ### Test the model
 
@@ -254,3 +255,5 @@ if output[0][0] > output[0][1]:
 else:
     print('dog')
 ```
+
+![dog](https://user-images.githubusercontent.com/35737777/69684980-a6fc5800-10b2-11ea-896a-4f6f9c269e7b.png)

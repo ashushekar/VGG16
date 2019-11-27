@@ -1,8 +1,24 @@
+"""
+VGG-16 Implementation on Cats&Dogs Dataset
+"""
+
 import keras
+import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.layers import Conv2D, Dense, Flatten, MaxPool2D
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.optimizers import Adam
+from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
+
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
+config.log_device_placement = True  # to log device placement (on which device the operation ran)
+sess = tf.Session(config=config)
+set_session(sess)
 
 # Get the data
 trdata = ImageDataGenerator()
@@ -69,3 +85,32 @@ model.compile(optimizer=optimizer, loss=keras.losses.categorical_crossentropy,
               metrics=['accuracy'])
 # Check model summary
 print(model.summary())
+
+checkpoint = ModelCheckpoint("vgg16_1.h5", monitor='val_acc', verbose=1, save_best_only=True,
+                             save_weights_only=False, mode='auto', period=1)
+earlystop = EarlyStopping(monitor='val_acc', min_delta=0, patience=20, verbose=1, mode='auto')
+hist = model.fit_generator(steps_per_epoch=100, generator=traindata, validation_data=testdata,
+                           validation_steps=10, epochs=100,
+                           callbacks=[checkpoint, earlystop])
+
+plt.plot(hist.history["acc"])
+plt.plot(hist.history['val_acc'])
+plt.plot(hist.history['loss'])
+plt.plot(hist.history['val_loss'])
+plt.title("model accuracy")
+plt.ylabel("Accuracy")
+plt.xlabel("Epoch")
+plt.legend(["Accuracy","Validation Accuracy","loss","Validation Loss"])
+plt.show(block=True)
+
+# Try on test data
+img = image.load_img("../Datasets/Cats&Dogs/test1/39.jpg",target_size=(224,224))
+img = np.asarray(img)
+plt.imshow(img)
+img = np.expand_dims(img, axis=0)
+saved_model = load_model("vgg16_1.h5")
+output = saved_model.predict(img)
+if output[0][0] > output[0][1]:
+    print("cat")
+else:
+    print('dog')

@@ -17,12 +17,17 @@ The implementation of VGG16 can be done on Cats vs Dogs dataset.
 ### Packages Needed
 
 ```python
-import os
-import keras
 import numpy as np
-from keras.models import Sequential
+import keras
+import tensorflow as tf
+import matplotlib.pyplot as plt
 from keras.layers import Conv2D, Dense, Flatten, MaxPool2D
+from keras.models import Sequential, load_model
+from keras.optimizers import Adam
+from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
+from keras.callbacks import ModelCheckpoint, EarlyStopping
+from keras.backend.tensorflow_backend import set_session
 ```
 We will be using Sequential method which means that all the layers of the model will be arranged in sequence. Here we 
 have imported ImageDataGenerator from _keras.preprocessing_. The objective of ImageDataGenerator is to import data with 
@@ -45,7 +50,7 @@ testdata = tsdata.flow_from_directory(directory="../Datasets/Cats&Dogs/validatio
 The ImageDataGenerator will automatically label all the data inside cat folder as cat and vis-à-vis for dog folder. In 
 this way data is easily ready to be passed to the neural network.
 
-### Model Implementation
+### Model Structure
 ```python
 # Generate the model
 model = Sequential()
@@ -191,4 +196,61 @@ Total params: 134,268,738
 Trainable params: 134,268,738
 Non-trainable params: 0
 _________________________________________________________________
+```
+
+### Model Implementation
+
+#### Model Checkpoint Saving
+
+ModelCheckpoint helps us to save the model by monitoring a specific parameter of the model. In this case we have monitoring 
+validation accuracy by passing _val_acc_ to **ModelCheckpoint**. The model will only be saved to disk if the validation 
+accuracy of the model in current epoch is greater than what it was in the last epoch.
+
+```python
+checkpoint = ModelCheckpoint("vgg16_1.h5", monitor='val_acc', 
+                             verbose=1, save_best_only=True, 
+                             save_weights_only=False, mode='auto', period=1)
+```
+
+#### Early Stopping
+
+EarlyStopping helps us to stop the training of the model early if there is no increase in the parameter which we have set 
+to monitor in **EarlyStopping**. In this case we have monitoring validation accuracy by passing _val_acc_ to **EarlyStopping**. 
+We have set patience to 20 which means that the model will stop to train if it does not see any rise in validation accuracy 
+in 20 epochs.
+
+```python
+earlystop = EarlyStopping(monitor='val_acc', min_delta=0, patience=20, verbose=1, mode='auto')
+```
+
+#### Fit Generator
+We are using _model.fit_generator_ as we have **ImageDataGenerator** to pass data to the model. We will pass train and test 
+data to _fit_generator_. In _fit_generator_, _steps_per_epoch_ will set the batch size to pass training data to the model 
+and validation_steps will do the same for test data. We can tweak it anytime based on our system specifications.
+
+```python
+hist = model.fit_generator(steps_per_epoch=100, generator=traindata, validation_data=testdata,
+                           validation_steps=10, epochs=100,
+                           callbacks=[checkpoint, earlystop])
+```
+
+### Plot Visualisation
+We will visualise training/validation accuracy and loss using matplotlib.
+
+### Test the model
+
+To do predictions on the trained model we need to load the best saved model and pre-process the image and pass the image 
+to the model for output.
+
+```python
+img = image.load_img("../Datasets/Cats&Dogs/test1/39.jpg",target_size=(224,224))
+img = np.asarray(img)
+plt.imshow(img)
+img = np.expand_dims(img, axis=0)
+saved_model = load_model("vgg16_1.h5")
+output = saved_model.predict(img)
+if output[0][0] > output[0][1]:
+    print("cat")
+else:
+    print('dog')
 ```

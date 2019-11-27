@@ -122,6 +122,7 @@ After initialising the model then we can add:
 We have also add ReLU activation to each layers so that all the negative values are not passed to the next layer.
 
 After creating all the convolution we pass the data to the dense layer:
+
 11. 1 x Dense layer of 4096 units
 12. 1 x Dense layer of 4096 units
 13. 1 x Dense Softmax layer of 2 units
